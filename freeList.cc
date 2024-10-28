@@ -1,33 +1,47 @@
 #include "freeList.h"
 
 freeList::freeList( long int*inRAM, int size ) {
-  long int * head = inRAM;
-
-  int Msize = size;
+  head = inRAM;
+  head[0] = size -2;
+  head[1] = NULL;
 
 }
 
 long int*
 freeList::reserve_space( int size ) {
+
+  long int* current = head;
   
-  long int* reservedMemory = (long int*)malloc((size + 2) * sizeof(long int));
-  if (!reservedMemory) {
-    std::cerr << "Memory allocation failed!" << std::endl;
-    return nullptr; 
-   }
-  head = reservedMemory + 2;
+  while (current != NULL) {
 
-  reservedMemory[0] = size;
-  reservedMemory[1] = 0;
+    if (size > current[0]) {
+      std::cerr << "Memory allocation failed!" << std::endl;
 
-  return head; 
+      current = (long int * )current[1];
+
+    }
+    else{
+
+      head = current + size + 2;
+
+      head[1] = current[1];
+
+      head[0] = current[0] - size - 2;
+
+      current[0] = size;
+
+    return current;}
+
+  }
+
+  return nullptr; 
+  
 }
 
 void
 freeList::free_space( long int* location ) {
-  long int* header = location - 2;
-  header[1] = (long int)head; 
-  head = header; 
+  location[1] = (long int )head;
+  head = location;
 }
 
 void
